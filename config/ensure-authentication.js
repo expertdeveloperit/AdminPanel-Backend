@@ -19,8 +19,7 @@ module.exports = {
 				});
 			}
 			if(user){
-       			req.user = user;
-       			return next();
+       			return next(user);
      		}
 		})(req,res,next)
 	}

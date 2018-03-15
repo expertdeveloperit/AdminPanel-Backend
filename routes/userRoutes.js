@@ -51,6 +51,22 @@ const router = express.Router();
 	.put(
 		userController.updateUser
 		);
+
+/* 
+	Route to update specific  user whose id is received in params 
+*/
+
+	router.route('/image')
+	.put(
+		ensureAuthentication.authenticate,
+		userController.profilePicture
+		);
+
+	router.route('/userdata')
+	.get(
+		ensureAuthentication.authenticate,
+		userController.userData
+		);
 	
 
 module.exports = router;

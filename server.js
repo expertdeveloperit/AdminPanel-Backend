@@ -2,8 +2,10 @@ import express from 'express';
 import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
 import passport from 'passport';
+import multer from 'multer';
 import logger from 'morgan';
 import cors from 'cors';
+import path from 'path';
 import config from './config/config';
 
 
@@ -51,6 +53,9 @@ app.use(require('express-session')({
 
 //cors middleware to handle cross-origin request
 app.use(cors());
+
+// serving static files to the client    
+app.use('/public', express.static(path.join(__dirname + '/public')));
 
 // Api Routes For application 
 

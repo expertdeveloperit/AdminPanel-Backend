@@ -5,8 +5,10 @@ import jwt from 'jsonwebtoken';
 import userModel from '../models/userModel';
 import randtoken from  'rand-token';
 import timediff from  'timediff';
+import multer from 'multer';
 import config from '../config/config';
 import ensureAuthentication from '../config/ensure-authentication';
+import {storage} from '../config/fileUpload';
 
 randtoken.generate();
 
@@ -116,6 +118,7 @@ let user ={
 							res.status(200).json({
 								status:true,
 								authenticated:true,
+								data:data,
 								token:token
 							});
 						}
@@ -213,7 +216,7 @@ let user ={
 
 		var id = req.params.id;
 		var email = req.body.email;
-		var userName = req.body.name;
+		var userName = req.body.userName;
 		
 
 		userModel.findOne({"_id":id})
@@ -233,6 +236,93 @@ let user ={
 					});
 				})
 				
+			}
+		})
+		.catch(err => {
+			res.status(404).json({
+				status:false,
+				Error:err.message
+			});
+		})
+	},
+
+	profilePicture(user,req,res,next){
+
+		var user = user._id;
+
+		userModel.findOne({"_id":user})
+		.then(data => {
+			if(data){
+
+				var upload = multer({
+								storage: storage
+							}).single('file')
+
+				upload(req, res, function(err) {
+					if(err){
+						res.status(404).json({
+							status:false,
+							Error:err.message
+						});
+					}
+					console.log( req.file,"dfij");
+
+					var imageSrc = req.file.path;
+
+					userModel.findByIdAndUpdate(
+						{"_id":user},
+						{ $set: { "profilePicture": imageSrc } },
+						{new: true},
+						function(err,uploaded){
+						if(err){
+							res.status(404).json({
+								status:false,
+								Error:err.message
+							});
+						}
+						else{
+							res.status(200).json({
+								status:true,
+								result:uploaded
+							});
+						}
+					});
+				});
+			}
+			else{
+				res.status(404).json({
+					status:false,
+					message:"Invalid user"
+				});;
+			}
+		})
+		.catch(err => {
+			res.status(404).json({
+				status:false,
+				Error:err.message
+			});
+		});
+
+		
+
+	},
+	userData(user,req,res,next){
+
+		var user = user._id;
+
+		userModel.findOne({"_id":user})
+		.then(data => {
+			if(data){
+				res.status(200).json({
+					status:true,
+					data:data
+				});
+			}
+			else{
+				res.status(404).json({
+					status:false,
+					Message:"Invalid userId"
+				});
 			}
 		})
 		.catch(err => {
